@@ -8,7 +8,6 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-    cout << filesystem::path(argv[3]).filename() << endl;
     if (!(filesystem::path(argv[1]).extension() == ".py"))
     {
         cerr << "ERROR: " << argv[1] << "is not a python file!" << endl;
