@@ -7,16 +7,7 @@ using namespace std;
 
 int main()
 {
-    auto fileContentsToString = [](ifstream & is)
-    {
-        string contents;
-        for (char ch; is.get(ch); contents.push_back(ch))
-        {
-        };
-        return contents;
-    };
-
-    auto find_and_replace = [](string & file_contents, const string &word_find, const string &word_replace)
+    auto find_and_replace = [](string &file_contents, const string &word_find, const string &word_replace)
     {
         auto pos = file_contents.find(word_find);
         while (pos != string::npos)
@@ -24,27 +15,29 @@ int main()
             file_contents.replace(pos, word_find.length(), word_replace);
             pos = file_contents.find(word_find, pos);
         }
-        return 0;
+        return file_contents;
     };
 
+    cout << "Running script..." << endl;
 
-    ifstream filein("../tests/main.py");
-    ofstream fileout("../tests/alias.py");
+    ifstream filein("C:\\Users\\insom\\Desktop\\PyAlias\\tests\\main.py", fstream::in);
+    ofstream fileout("C:\\Users\\insom\\Desktop\\PyAlias\\tests\\alias.py", fstream::out);
     ifstream coFile;
     string s;
     string c;
 
     unordered_map<string, string> variables_table;
 
-    // Opening the file ->
-    // While accessing it's contents
-    /* inFile.open("C:\\Users\\insom\\Desktop\\PyAlias\\tests\\main.py");
-    coFile.open("C:\\Users\\insom\\Desktop\\PyAlias\\tests\\config.alias"); */
+    coFile.open("C:\\Users\\insom\\Desktop\\PyAlias\\tests\\config.alias", fstream::in);
 
     if (!coFile)
     {
         cerr << "Failed to load config.alias" << endl;
         exit(1);
+    }
+    else
+    {
+        cout << "Successfully loaded config.alias" << endl;
     }
 
     int count;
@@ -61,22 +54,37 @@ int main()
         else
         {
             variables_table[lastKey] = s;
+            cout << "Created Key value pair: " << variables_table[lastKey] << " :: " << s << endl;
             lastKey = "";
         }
         count++;
     }
 
-    string file_contents;
+    coFile.close();
 
-    file_contents = fileContentsToString(filein);
+    string file_contents;
+    char ch;
+
+    while (filein.get(ch))
+    {
+        file_contents += ch;
+    }
+
+    cout << file_contents << endl;
+
+    cout << file_contents.length() << endl;
+
+    cout << "Reading main.py..." << endl;
 
     for (pair<string, string> element : variables_table)
     {
         cout << element.first << " :: " << element.second << endl;
-        find_and_replace(file_contents, element.first, element.second);
+        file_contents = find_and_replace(file_contents, element.first, element.second);
     }
 
     fileout << file_contents;
+
+    fileout.close();
 
     return 0;
 }
