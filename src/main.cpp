@@ -2,11 +2,28 @@
 #include <iostream>
 #include <fstream>
 #include <unordered_map>
+#include <filesystem>
 
 using namespace std;
 
-int main()
+int main(int argc, char **argv)
 {
+    cout << filesystem::path(argv[3]).filename() << endl;
+    if (!(filesystem::path(argv[1]).extension() == ".py"))
+    {
+        cerr << "ERROR: " << argv[1] << "is not a python file!" << endl;
+        exit(1);
+    }
+    if (!(filesystem::path(argv[2]).extension() == ".py"))
+    {
+        cerr << "ERROR: " << argv[2] << "is not a python file!" << endl;
+        exit(1);
+    }
+    if (!(filesystem::path(argv[3]).filename() == "config.alias"))
+    {
+        cerr << "ERROR: Configuration files MUST be named 'config.alias' !" << endl;
+        exit(1);
+    }
     auto find_and_replace = [](string &file_contents, const string &word_find, const string &word_replace)
     {
         auto pos = file_contents.find(word_find);
@@ -20,15 +37,15 @@ int main()
 
     cout << "Running script..." << endl;
 
-    ifstream filein("C:\\Users\\insom\\Desktop\\PyAlias\\tests\\main.py", fstream::in);
-    ofstream fileout("C:\\Users\\insom\\Desktop\\PyAlias\\tests\\alias.py", fstream::out);
+    ifstream filein(argv[1], fstream::in);
+    ofstream fileout(argv[2], fstream::out);
     ifstream coFile;
     string s;
     string c;
 
     unordered_map<string, string> variables_table;
 
-    coFile.open("C:\\Users\\insom\\Desktop\\PyAlias\\tests\\config.alias", fstream::in);
+    coFile.open(argv[3], fstream::in);
 
     if (!coFile)
     {
@@ -54,7 +71,6 @@ int main()
         else
         {
             variables_table[lastKey] = s;
-            cout << "Created Key value pair: " << variables_table[lastKey] << " :: " << s << endl;
             lastKey = "";
         }
         count++;
@@ -70,21 +86,17 @@ int main()
         file_contents += ch;
     }
 
-    cout << file_contents << endl;
-
-    cout << file_contents.length() << endl;
-
     cout << "Reading main.py..." << endl;
 
     for (pair<string, string> element : variables_table)
     {
-        cout << element.first << " :: " << element.second << endl;
         file_contents = find_and_replace(file_contents, element.first, element.second);
     }
 
     fileout << file_contents;
 
     fileout.close();
+    cout << "Script Finished Running." << endl;
 
     return 0;
 }
