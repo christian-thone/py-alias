@@ -6,7 +6,7 @@
 
 using namespace std;
 
-int main(int argc, char **argv)
+int validateFiles(char **argv)
 {
     if (!(filesystem::path(argv[1]).extension() == ".py"))
     {
@@ -23,44 +23,31 @@ int main(int argc, char **argv)
         cerr << "ERROR: Configuration files MUST be named 'config.alias' !" << endl;
         exit(1);
     }
-    auto find_and_replace = [](string &file_contents, const string &word_find, const string &word_replace)
+
+    return 1;
+}
+
+string find_and_replace(string &file_contents, const string &word_find, const string &word_replace)
+{
+    auto pos = file_contents.find(word_find);
+    while (pos != string::npos)
     {
-        auto pos = file_contents.find(word_find);
-        while (pos != string::npos)
-        {
-            file_contents.replace(pos, word_find.length(), word_replace);
-            pos = file_contents.find(word_find, pos);
-        }
-        return file_contents;
-    };
-
-    cout << "Running script..." << endl;
-
-    ifstream filein(argv[1], fstream::in);
-    ofstream fileout(argv[2], fstream::out);
-    ifstream coFile;
-    string s;
-    string c;
-
-    unordered_map<string, string> variables_table;
-
-    coFile.open(argv[3], fstream::in);
-
-    if (!coFile)
-    {
-        cerr << "Failed to load config.alias" << endl;
-        exit(1);
+        file_contents.replace(pos, word_find.length(), word_replace);
+        pos = file_contents.find(word_find, pos);
     }
-    else
-    {
-        cout << "Successfully loaded config.alias" << endl;
-    }
+    return file_contents;
+};
 
+unordered_map<string, string> loadConfig(string config_file_name)
+{
     int count;
     count = 0;
+    string s;
     string lastKey;
+    unordered_map<string, string> variables_table;
+    ifstream conFile(config_file_name, fstream::in);
 
-    while (coFile >> s)
+    while (conFile >> s)
     {
         if (count % 2 == 0)
         {
@@ -75,7 +62,24 @@ int main(int argc, char **argv)
         count++;
     }
 
-    coFile.close();
+    conFile.close();
+
+    return variables_table;
+}
+
+int main(int argc, char **argv)
+{
+    validateFiles(argv);
+
+    ifstream filein(argv[1], fstream::in);
+    ofstream fileout(argv[2], fstream::out);
+    string s;
+    string c;
+    unordered_map<string, string> variables_table;
+
+    variables_table = loadConfig(argv[3]);
+
+    // ToDo: If no output file specified, use input file as output
 
     string file_contents;
     char ch;
@@ -93,9 +97,9 @@ int main(int argc, char **argv)
     }
 
     fileout << file_contents;
-
     fileout.close();
+
     cout << "Script Finished Running." << endl;
 
-    return 0;
+    return 1;
 }
