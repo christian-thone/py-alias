@@ -6,25 +6,34 @@
 
 using namespace std;
 
-int validateFiles(char **argv)
-{
-    if (!(filesystem::path(argv[1]).extension() == ".py"))
-    {
-        cerr << "ERROR: " << argv[1] << "is not a python file!" << endl;
-        exit(1);
-    }
-    if (!(filesystem::path(argv[2]).extension() == ".py"))
-    {
-        cerr << "ERROR: " << argv[2] << "is not a python file!" << endl;
-        exit(1);
-    }
-    if (!(filesystem::path(argv[3]).filename() == "config.alias"))
-    {
-        cerr << "ERROR: Configuration files MUST be named 'config.alias' !" << endl;
-        exit(1);
-    }
+string inputFile;
+string outputFile;
+string configFile;
 
-    return 1;
+string usageExample = "\nEXAMPLE USAGE: \n pyalias [path_to_input_file] [path_to_output_file] [path_to_config_file]";
+
+int validateFiles(int argc, char **argv)
+{
+    if (filesystem::path(argv[1]).extension() == ".py") {
+        inputFile = argv[1];
+        if (filesystem::path(argv[2]).filename() == "config.alias") {
+            /* outputFile = argv[1];
+            configFile = argv[2]; */
+            cout << "WARNING: You must put all 3 files (input, output, configuration) in order for this script to work properly!  This feature will come soon!" << endl;
+            cout << usageExample << endl;
+            return 1;
+        } else if (filesystem::path(argv[2]).extension() == ".py") {
+            outputFile = argv[2];
+            if (filesystem::path(argv[3]).filename() == "config.alias") {
+                configFile = argv[3];
+            }
+        } else {
+            return 0;
+        }
+        return 1;
+    } else {
+        return 0;
+    }
 }
 
 string find_and_replace(string &file_contents, const string &word_find, const string &word_replace)
@@ -69,15 +78,21 @@ unordered_map<string, string> loadConfig(string config_file_name)
 
 int main(int argc, char **argv)
 {
-    validateFiles(argv);
+    cout << validateFiles(argc, argv) << endl;
 
-    ifstream filein(argv[1], fstream::in);
-    ofstream fileout(argv[2], fstream::out);
+    if (validateFiles(argc, argv) == 0)
+    {
+        cout << "Failed to validate files passed in as parameters." << endl;
+        return 1;
+    }
+
+    ifstream filein(inputFile, fstream::in);
+    ofstream fileout(outputFile, fstream::out);
     string s;
     string c;
     unordered_map<string, string> variables_table;
 
-    variables_table = loadConfig(argv[3]);
+    variables_table = loadConfig(configFile);
 
     // ToDo: If no output file specified, use input file as output
 
