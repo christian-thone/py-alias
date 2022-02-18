@@ -1,7 +1,9 @@
 *.vscode
 *.exe
+/a.out
 
 alias.py
 /.gitignore
 /tests/awdhnawd.py
 /tests/awdhnawd.txt
+

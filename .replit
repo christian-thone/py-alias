@@ -1,0 +1,3 @@
+language = "bash"
+
+run = "g++ --std=c++17 ./src/main.cpp -lstdc++fs && ./a.out ./tests/main.py ./tests/alias.py ./tests/config.alias"
